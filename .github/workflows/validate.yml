@@ -1,0 +1,46 @@
+name: Validate Repository Structure
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Check docs folder exists
+      run: |
+        if [ ! -d "docs" ]; then
+          echo "docs folder is missing"
+          exit 1
+        fi
+        echo "docs folder exists"
+    
+    - name: Check ERD file exists
+      run: |
+        if [ ! -f "docs/ERD.png" ] && [ ! -f "docs/ERD.pdf" ]; then
+          echo "ERD file is missing"
+          exit 1
+        fi
+        echo "ERD file exists"
+    
+    - name: Check API Endpoint Plan exists
+      run: |
+        if [ ! -f "docs/API-Endpoint-Plan.md" ]; then
+          echo "API Endpoint Plan is missing"
+          exit 1
+        fi
+        echo "API Endpoint Plan exists"
+    
+    - name: Check SQL script exists
+      run: |
+        if [ ! -f "docs/RaceDay-Database-Script.sql" ]; then
+          echo "SQL script is missing"
+          exit 1
+        fi
+        echo "SQL script exists"
