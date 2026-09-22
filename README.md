@@ -23,7 +23,7 @@ The system supports two distinct user roles:
 ![CI/CD Green Build](screenshots/ci-cd-green-build.png)
 
 ## Video Presentation
-[Watch the Part 1 Video Presentation](ADD_YOUTUBE_LINK_HERE)
+[Watch the Part 1 Video Presentation] 
 
 ## Setup Instructions
 1. Clone the repository: `git clone https://github.com/Abulele-26/RaceDay-PoE.git`
