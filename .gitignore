@@ -1,0 +1,7 @@
+# Visual Studio temporary folders
+.vs/
+.vscode/
+
+# .NET build output folders (for Part 2 and Part 3 later)
+bin/
+obj/
