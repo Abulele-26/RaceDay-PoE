@@ -18,6 +18,16 @@ namespace RaceDay.API.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Captures a participant's result for a specific event. Only accessible to the Organiser who created the event.
+        /// </summary>
+        /// <param name="eventId">The ID of the event.</param>
+        /// <param name="dto">The result details (EnrollmentId, FinishTime, Position).</param>
+        /// <returns>A success message.</returns>
+        /// <response code="200">Result captured successfully.</response>
+        /// <response code="400">Invalid enrollment or result already exists.</response>
+        /// <response code="403">User does not own this event.</response>
+        /// <response code="404">Event not found.</response>
         [HttpPost("events/{eventId}/results")]
         [AuthorizeRole("Organiser")]
         public async Task<IActionResult> CaptureResult(int eventId, CreateResultDto dto)
@@ -28,14 +38,12 @@ namespace RaceDay.API.Controllers
             if (eventItem == null) return NotFound("Event not found.");
             if (eventItem.OrganiserId != organiserId) return Forbid("You do not own this event.");
 
-            // Verify the enrollment exists and belongs to a category in this event
             var enrollment = await _context.Enrollments
                 .Include(e => e.Category)
-                .FirstOrDefaultAsync(e => e.EnrollmentId == dto.EnrollmentId && e.Category.EventId == eventId);
+                .FirstOrDefaultAsync(e => e.EnrollmentId == dto.EnrollmentId && e.Category!.EventId == eventId);
 
             if (enrollment == null) return BadRequest("Invalid enrollment for this event.");
 
-            // Check if result already exists
             if (await _context.Results.AnyAsync(r => r.EnrollmentId == dto.EnrollmentId))
                 return BadRequest("Result already captured for this enrollment.");
 
@@ -52,6 +60,11 @@ namespace RaceDay.API.Controllers
             return Ok(new { message = "Result captured successfully" });
         }
 
+        /// <summary>
+        /// Retrieves all personal results for the currently logged-in participant.
+        /// </summary>
+        /// <returns>A list of the participant's results.</returns>
+        /// <response code="200">Returns the list of results.</response>
         [HttpGet("results/me")]
         [AuthorizeRole("Participant")]
         public async Task<IActionResult> GetMyResults()
@@ -62,12 +75,13 @@ namespace RaceDay.API.Controllers
                 .Include(r => r.Enrollment)
                 .ThenInclude(e => e.Category)
                 .ThenInclude(c => c.Event)
-                .Where(r => r.Enrollment.UserId == userId)
+                .Where(r => r.Enrollment!.UserId == userId)
                 .Select(r => new
                 {
                     r.ResultId,
-                    EventName = r.Enrollment.Category.Event.Name,
-                    CategoryName = r.Enrollment.Category.Name,
+                    EventName = r.Enrollment!.Category!.Event!.Name,
+                    // FIXED: Added '!' to Category
+                    CategoryName = r.Enrollment.Category!.Name,
                     r.FinishTime,
                     r.Position
                 }).ToListAsync();
@@ -75,19 +89,25 @@ namespace RaceDay.API.Controllers
             return Ok(results);
         }
 
+        /// <summary>
+        /// Retrieves all results for a specific event.
+        /// </summary>
+        /// <param name="eventId">The ID of the event.</param>
+        /// <returns>A list of results for the event.</returns>
+        /// <response code="200">Returns the list of results.</response>
         [HttpGet("events/{eventId}/results")]
         public async Task<IActionResult> GetEventResults(int eventId)
         {
             var results = await _context.Results
                 .Include(r => r.Enrollment)
                 .ThenInclude(e => e.User)
-                .Include(r => r.Enrollment.Category)
-                .Where(r => r.Enrollment.Category.EventId == eventId)
+                .Include(r => r.Enrollment!.Category)
+                .Where(r => r.Enrollment!.Category!.EventId == eventId)
                 .Select(r => new
                 {
                     r.ResultId,
-                    ParticipantName = r.Enrollment.User.FullName,
-                    CategoryName = r.Enrollment.Category.Name,
+                    ParticipantName = r.Enrollment!.User!.FullName,
+                    CategoryName = r.Enrollment.Category!.Name,
                     r.FinishTime,
                     r.Position
                 }).ToListAsync();

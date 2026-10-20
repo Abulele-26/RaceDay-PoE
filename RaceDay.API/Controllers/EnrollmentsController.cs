@@ -18,6 +18,16 @@ namespace RaceDay.API.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Enrolls the logged-in participant into a specific event category.
+        /// </summary>
+        /// <param name="eventId">The ID of the event.</param>
+        /// <param name="dto">The enrollment details (CategoryId).</param>
+        /// <returns>A success message.</returns>
+        /// <response code="200">Successfully enrolled.</response>
+        /// <response code="400">Invalid category or already enrolled.</response>
+        /// <response code="401">User is not logged in.</response>
+        /// <response code="403">User is not a Participant.</response>
         [HttpPost("events/{eventId}/enroll")]
         [AuthorizeRole("Participant")]
         public async Task<IActionResult> EnrollInEvent(int eventId, CreateEnrollmentDto dto)
@@ -48,6 +58,12 @@ namespace RaceDay.API.Controllers
             return Ok(new { message = "Successfully enrolled" });
         }
 
+        /// <summary>
+        /// Retrieves all enrollments for the currently logged-in participant.
+        /// </summary>
+        /// <returns>A list of the participant's enrollments.</returns>
+        /// <response code="200">Returns the list of enrollments.</response>
+        /// <response code="401">User is not logged in.</response>
         [HttpGet("enrollments/me")]
         [AuthorizeRole("Participant")]
         public async Task<IActionResult> GetMyEnrollments()
@@ -63,13 +79,22 @@ namespace RaceDay.API.Controllers
                     EnrollmentId = e.EnrollmentId,
                     EnrollmentDate = e.EnrollmentDate,
                     Status = e.Status,
-                    EventName = e.Category.Event.Name,
+                    // The '!' fixes the null reference warning
+                    EventName = e.Category!.Event!.Name,
                     CategoryName = e.Category.Name
                 }).ToListAsync();
 
             return Ok(enrollments);
         }
 
+        /// <summary>
+        /// Cancels a specific enrollment for the logged-in participant.
+        /// </summary>
+        /// <param name="id">The ID of the enrollment to cancel.</param>
+        /// <returns>No content.</returns>
+        /// <response code="204">Enrollment cancelled successfully.</response>
+        /// <response code="403">User does not own this enrollment.</response>
+        /// <response code="404">Enrollment not found.</response>
         [HttpDelete("enrollments/{id}")]
         [AuthorizeRole("Participant")]
         public async Task<IActionResult> CancelEnrollment(int id)

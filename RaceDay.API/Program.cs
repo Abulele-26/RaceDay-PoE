@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models; 
+using Microsoft.OpenApi.Models;
 using RaceDay.API.Data;
 using System.Reflection; 
 
