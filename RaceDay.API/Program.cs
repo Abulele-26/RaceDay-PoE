@@ -3,7 +3,6 @@ using RaceDay.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 // 1. Configure Database Connection
 builder.Services.AddDbContext<RaceDayDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -11,6 +10,15 @@ builder.Services.AddDbContext<RaceDayDbContext>(options =>
 // 2. Add Controllers with NewtonsoftJson to handle object reference loops
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+// 3. 🔐 Configure Session Management
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -27,6 +35,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// 🔐 Enable Session Middleware (MUST be before UseAuthorization and MapControllers)
+app.UseSession();
 app.UseAuthorization();
 
 app.MapControllers();
