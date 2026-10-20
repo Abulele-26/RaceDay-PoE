@@ -17,6 +17,13 @@ namespace RaceDay.API.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Registers a new user account.
+        /// </summary>
+        /// <param name="dto">The registration details (FullName, Email, Password, Role).</param>
+        /// <returns>A success message.</returns>
+        /// <response code="200">User registered successfully.</response>
+        /// <response code="400">Email already exists or Role is invalid.</response>
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
@@ -43,6 +50,13 @@ namespace RaceDay.API.Controllers
             return Ok(new { message = "User registered successfully" });
         }
 
+        /// <summary>
+        /// Logs in a user and creates a session.
+        /// </summary>
+        /// <param name="dto">The login credentials (Email, Password).</param>
+        /// <returns>The user's role and ID.</returns>
+        /// <response code="200">Login successful.</response>
+        /// <response code="401">Invalid email or password.</response>
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
@@ -65,6 +79,10 @@ namespace RaceDay.API.Controllers
             });
         }
 
+        /// <summary>
+        /// Logs out the currently authenticated user.
+        /// </summary>
+        /// <returns>A success message.</returns>
         [HttpPost("logout")]
         public IActionResult Logout()
         {

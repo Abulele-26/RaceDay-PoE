@@ -18,6 +18,11 @@ namespace RaceDay.API.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Retrieves all upcoming events.
+        /// </summary>
+        /// <returns>A list of all events.</returns>
+        /// <response code="200">Returns the list of events.</response>
         [HttpGet]
         public async Task<IActionResult> GetAllEvents()
         {
@@ -37,6 +42,13 @@ namespace RaceDay.API.Controllers
             return Ok(events);
         }
 
+        /// <summary>
+        /// Retrieves a specific event by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the event.</param>
+        /// <returns>The event details.</returns>
+        /// <response code="200">Returns the event.</response>
+        /// <response code="404">Event not found.</response>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEvent(int id)
         {
@@ -56,6 +68,14 @@ namespace RaceDay.API.Controllers
             });
         }
 
+        /// <summary>
+        /// Creates a new event. Only accessible to Organisers.
+        /// </summary>
+        /// <param name="dto">The event details.</param>
+        /// <returns>The newly created event.</returns>
+        /// <response code="201">Event created successfully.</response>
+        /// <response code="401">User is not logged in.</response>
+        /// <response code="403">User is not an Organiser.</response>
         [HttpPost]
         [AuthorizeRole("Organiser")]
         public async Task<IActionResult> CreateEvent(CreateUpdateEventDto dto)
@@ -80,6 +100,15 @@ namespace RaceDay.API.Controllers
             return CreatedAtAction(nameof(GetEvent), new { id = newEvent.EventId }, newEvent);
         }
 
+        /// <summary>
+        /// Updates an existing event. Only accessible to the Organiser who created it.
+        /// </summary>
+        /// <param name="id">The ID of the event to update.</param>
+        /// <param name="dto">The updated event details.</param>
+        /// <returns>A success message.</returns>
+        /// <response code="200">Event updated successfully.</response>
+        /// <response code="403">User does not own this event.</response>
+        /// <response code="404">Event not found.</response>
         [HttpPut("{id}")]
         [AuthorizeRole("Organiser")]
         public async Task<IActionResult> UpdateEvent(int id, CreateUpdateEventDto dto)
@@ -101,6 +130,14 @@ namespace RaceDay.API.Controllers
             return Ok(new { message = "Event updated successfully" });
         }
 
+        /// <summary>
+        /// Deletes an event. Only accessible to the Organiser who created it.
+        /// </summary>
+        /// <param name="id">The ID of the event to delete.</param>
+        /// <returns>No content.</returns>
+        /// <response code="204">Event deleted successfully.</response>
+        /// <response code="403">User does not own this event.</response>
+        /// <response code="404">Event not found.</response>
         [HttpDelete("{id}")]
         [AuthorizeRole("Organiser")]
         public async Task<IActionResult> DeleteEvent(int id)
