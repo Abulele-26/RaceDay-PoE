@@ -1,0 +1,67 @@
+﻿@model IEnumerable<RaceDay.Web.DTOs.CategoryDto>
+
+@{
+    ViewData["Title"] = "Manage Categories";
+    int eventId = ViewBag.EventId;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Manage Categories for Event</h2>
+    <a asp-action="Events" class="btn btn-secondary">Back to Events</a>
+</div>
+
+<div class="row">
+    <!-- Left Column: Existing Categories -->
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Existing Categories</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Category Name</th>
+                            <th>Distance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr><td colspan="2" class="text-muted text-center">No categories added yet.</td></tr>
+                        }
+                        @foreach (var cat in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">@cat.Name</td>
+                                <!-- If your DTO doesn't have Distance, change this to another property or remove the <td> -->
+                                <td>@cat.Distance km</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Add New Category Form -->
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Add New Category</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="AddCategory" asp-route-eventId="@eventId" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Category Name (e.g., 10km, 21km)</label>
+                        <input name="Name" class="form-control" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">Add Category</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

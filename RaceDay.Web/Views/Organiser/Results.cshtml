@@ -1,0 +1,50 @@
+﻿@model IEnumerable<RaceDay.Web.DTOs.EnrollmentDto>
+
+@{
+    ViewData["Title"] = "Enter Results";
+    int eventId = ViewBag.EventId;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Enter Results for Event</h2>
+    <a asp-action="Events" class="btn btn-secondary">Back to Events</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Enrollment ID</th>
+                    <th>Category</th>
+                    <th>Enter Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="3" class="text-center text-muted">No enrolments to process yet.</td></tr>
+                }
+                @foreach (var enr in Model)
+                {
+                    <tr>
+                        <!-- Changed to EnrollmentId -->
+                        <td>#@enr.EnrollmentId</td>
+                        <td>@enr.CategoryName</td>
+                        <td>
+                            <!-- Form to submit result for this specific participant -->
+                            <form asp-action="SubmitResult" asp-route-eventId="@eventId" method="post" class="d-flex gap-2">
+                                <input type="hidden" name="EnrollmentId" value="@enr.EnrollmentId" />
+
+                                <input type="number" name="FinishTimeMinutes" class="form-control form-control-sm" placeholder="Mins" style="width: 80px;" required />
+                                <input type="number" name="FinishingPosition" class="form-control form-control-sm" placeholder="Position" style="width: 100px;" required />
+
+                                <button type="submit" class="btn btn-sm btn-warning">Publish</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,46 @@
+﻿@model IEnumerable<RaceDay.Web.DTOs.EnrollmentDto>
+
+@{
+    ViewData["Title"] = "Event Enrolments";
+    int eventId = ViewBag.EventId;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Event Enrolments</h2>
+    <a asp-action="Events" class="btn btn-secondary">Back to Events</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Enrollment ID</th>
+                    <th>Date Enrolled</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="4" class="text-center text-muted">No enrolments yet.</td></tr>
+                }
+                @foreach (var enr in Model)
+                {
+                    <tr>
+                        <!-- Changed to EnrollmentId since UserId doesn't exist -->
+                        <td>#@enr.EnrollmentId</td>
+                        <td>@enr.EnrollmentDate.ToString("dd MMM yyyy")</td>
+                        <td>@enr.CategoryName</td>
+                        <td>
+                            <span class="badge @(enr.Status == "Confirmed" ? "bg-success" : "bg-warning text-dark")">
+                                @enr.Status
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
