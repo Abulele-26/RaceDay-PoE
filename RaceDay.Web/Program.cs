@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using RaceDay.Web.Services; 
+using RaceDay.Web.Services;
 
 namespace RaceDay.Web
 {
@@ -15,8 +15,10 @@ namespace RaceDay.Web
             // 1. Register HttpClient to talk to your Part 2 API
             builder.Services.AddHttpClient("RaceDayApi", client =>
             {
-                // IMPORTANT: Verify this URL matches your Part 2 API's running URL!
-                client.BaseAddress = new Uri("https://localhost:7001/");
+                // FIXED: Read from configuration (appsettings.json or Docker Environment Variable)
+                // If not found, fallback to the actual port your API runs on (5291)
+                var baseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5291/";
+                client.BaseAddress = new Uri(baseUrl);
             });
 
             // 2. Add Session services
@@ -46,11 +48,11 @@ namespace RaceDay.Web
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            // IMPORTANT: Disabled for Docker to prevent HTTP->HTTPS redirect loops.
+            // app.UseHttpsRedirection();
 
             // Note: .NET 10 templates use MapStaticAssets(), but UseStaticFiles() is 
             // perfectly fine and ensures standard static files (css/js) load correctly.
