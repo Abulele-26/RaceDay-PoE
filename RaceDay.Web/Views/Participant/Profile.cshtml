@@ -1,0 +1,35 @@
+﻿@model RaceDay.Web.DTOs.UserProfileDto
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4>My Profile</h4>
+            </div>
+            <div class="card-body text-center">
+                <!-- If your DTO has an ImageUrl, show it. Otherwise show a default icon -->
+                <img src="@(string.IsNullOrEmpty(Model.ProfilePictureUrl) ? "https://via.placeholder.com/150" : Model.ProfilePictureUrl)" alt="Profile Picture" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;" />
+
+                <form asp-action="UpdateProfile" method="post" enctype="multipart/form-data">
+                    <div class="mb-3 text-start">
+                        <label class="form-label">Full Name</label>
+                        <input name="FullName" value="@Model.FullName" class="form-control" required />
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label class="form-label">Email</label>
+                        <input name="Email" value="@Model.Email" class="form-control" required readonly />
+                    </div>
+                    <div class="mb-3 text-start">
+                        <label class="form-label">Update Profile Picture</label>
+                        <input type="file" name="ProfilePicture" class="form-control" accept="image/*" />
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Update Profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

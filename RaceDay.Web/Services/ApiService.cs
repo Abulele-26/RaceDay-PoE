@@ -140,8 +140,6 @@ namespace RaceDay.Web.Services
         public async Task<bool> CreateCategoryAsync(int eventId, CreateUpdateCategoryDto categoryDto)
         {
             AddAuthHeader();
-            // Removed the line: categoryDto.EventId = eventId; because your DTO doesn't have EventId.
-            // We pass the eventId in the URL instead.
             var response = await _httpClient.PostAsJsonAsync($"api/categories/event/{eventId}", categoryDto);
             return response.IsSuccessStatusCode;
         }
@@ -150,6 +148,62 @@ namespace RaceDay.Web.Services
         {
             AddAuthHeader();
             var response = await _httpClient.PostAsJsonAsync("api/results", resultDto);
+            return response.IsSuccessStatusCode;
+        }
+
+        // ==========================================
+        // PARTICIPANT SPECIFIC METHODS (ADDED FOR STEP 5)
+        // ==========================================
+
+        public async Task<List<EnrollmentDto>> GetMyEnrollmentsAsync(int userId)
+        {
+            AddAuthHeader();
+            var response = await _httpClient.GetAsync($"api/enrollments/user/{userId}");
+            if (response.IsSuccessStatusCode) return await response.Content.ReadFromJsonAsync<List<EnrollmentDto>>() ?? new();
+            return new();
+        }
+
+        public async Task<List<ResultDto>> GetMyResultsAsync(int userId)
+        {
+            AddAuthHeader();
+            var response = await _httpClient.GetAsync($"api/results/user/{userId}");
+            if (response.IsSuccessStatusCode) return await response.Content.ReadFromJsonAsync<List<ResultDto>>() ?? new();
+            return new();
+        }
+
+        public async Task<bool> EnrollAsync(int eventId, int categoryId)
+        {
+            AddAuthHeader();
+            var enrollDto = new { EventId = eventId, CategoryId = categoryId };
+            var response = await _httpClient.PostAsJsonAsync("api/enrollments", enrollDto);
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<UserProfileDto?> GetProfileAsync(int userId)
+        {
+            AddAuthHeader();
+            var response = await _httpClient.GetAsync($"api/users/{userId}");
+            if (response.IsSuccessStatusCode) return await response.Content.ReadFromJsonAsync<UserProfileDto>();
+            return null;
+        }
+
+        public async Task<bool> UpdateProfileAsync(int userId, UpdateUserProfileDto profileDto, IFormFile? profilePicture)
+        {
+            AddAuthHeader();
+            using var formContent = new MultipartFormDataContent();
+
+            formContent.Add(new StringContent(profileDto.FullName ?? ""), "FullName");
+            formContent.Add(new StringContent(profileDto.Email ?? ""), "Email");
+
+            if (profilePicture != null && profilePicture.Length > 0)
+            {
+                using var fileStream = profilePicture.OpenReadStream();
+                var fileContent = new StreamContent(fileStream);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(profilePicture.ContentType);
+                formContent.Add(fileContent, "ProfilePicture", profilePicture.FileName);
+            }
+
+            var response = await _httpClient.PutAsync($"api/users/{userId}", formContent);
             return response.IsSuccessStatusCode;
         }
     }

@@ -1,8 +1,47 @@
-﻿@{
+﻿@model IEnumerable<RaceDay.Web.DTOs.EventDto>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="p-5 mb-4 bg-light rounded-3 text-center" style="background: url('https://images.unsplash.com/photo-1552674605-15c3716f23c2?q=80&w=2070') center/cover;">
+    <div class="container-fluid py-5 text-white" style="background-color: rgba(0,0,0,0.6); border-radius: 10px;">
+        <h1 class="display-5 fw-bold">Welcome to RaceDay</h1>
+        <p class="col-md-8 mx-auto fs-4">Find your next road race, trail run, or cycling event.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 offset-md-3">
+        <form asp-action="Index" method="get" class="d-flex">
+            <input type="text" name="searchString" class="form-control me-2" placeholder="Search by event name or location..." value="@ViewBag.CurrentFilter" />
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center"><p class="text-muted">No upcoming events found.</p></div>
+    }
+    @foreach (var ev in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">@ev.Name</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text"><strong>Date:</strong> @ev.EventDate.ToString("dd MMM yyyy")</p>
+                    <p class="card-text"><strong>Location:</strong> @ev.Location</p>
+                    <p class="card-text"><strong>Distance:</strong> @ev.Distance km</p>
+                    <p class="card-text"><strong>Type:</strong> @ev.EventType</p>
+                </div>
+                <div class="card-footer bg-white border-0 text-center">
+                    <a asp-controller="Participant" asp-action="EventDetails" asp-route-id="@ev.EventId" class="btn btn-outline-primary w-100">View Details & Enrol</a>
+                </div>
+            </div>
+        </div>
+    }
 </div>

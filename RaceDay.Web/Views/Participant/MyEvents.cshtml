@@ -1,0 +1,34 @@
+﻿@model IEnumerable<RaceDay.Web.DTOs.EnrollmentDto>
+
+@{
+    ViewData["Title"] = "My Events";
+}
+
+<h2>My Enrolled Events</h2>
+<table class="table table-hover mt-3">
+    <thead class="table-dark">
+        <tr>
+            <th>Event Name</th>
+            <th>Category</th>
+            <th>Enrolment Date</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr><td colspan="4" class="text-center text-muted">You haven't enrolled in any events yet.</td></tr>
+        }
+        @foreach (var enr in Model)
+        {
+            <tr>
+                <td>@enr.EventName</td>
+                <td>@enr.CategoryName</td>
+                <td>@enr.EnrollmentDate.ToString("dd MMM yyyy")</td>
+                <td>
+                    <span class="badge @(enr.Status == "Confirmed" ? "bg-success" : "bg-warning text-dark")">@enr.Status</span>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

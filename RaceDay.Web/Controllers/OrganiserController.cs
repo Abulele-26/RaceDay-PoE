@@ -22,9 +22,8 @@ namespace RaceDay.Web.Controllers
             return int.TryParse(userIdClaim, out int id) ? id : 0;
         }
 
-        // ==========================================
         // 1. DASHBOARD
-        // ==========================================
+        
         public async Task<IActionResult> Dashboard()
         {
             var events = await _apiService.GetEventsAsync();
@@ -32,9 +31,9 @@ namespace RaceDay.Web.Controllers
             return View(events);
         }
 
-        // ==========================================
+      
         // 2. EVENT MANAGEMENT (CRUD)
-        // ==========================================
+        
         public async Task<IActionResult> Events()
         {
             var events = await _apiService.GetEventsAsync();
@@ -71,16 +70,17 @@ namespace RaceDay.Web.Controllers
             var eventDto = await _apiService.GetEventByIdAsync(id);
             if (eventDto == null) return NotFound();
 
-            // FIXED: Changed Date to EventDate
             var updateDto = new CreateUpdateEventDto
             {
                 Name = eventDto.Name,
                 Description = eventDto.Description,
-                EventDate = eventDto.EventDate,
+                EventDate = eventDto.EventDate, 
                 Location = eventDto.Location,
                 Distance = eventDto.Distance,
                 EventType = eventDto.EventType
             };
+
+            ViewBag.EventId = id; // IMPORTANT: This passes the ID to the View
 
             return View(updateDto);
         }
@@ -115,9 +115,8 @@ namespace RaceDay.Web.Controllers
             return RedirectToAction(nameof(Events));
         }
 
-        // ==========================================
         // 3. CATEGORY MANAGEMENT
-        // ==========================================
+        
         public async Task<IActionResult> Categories(int eventId)
         {
             ViewBag.EventId = eventId;
@@ -149,9 +148,8 @@ namespace RaceDay.Web.Controllers
             return View(enrolments);
         }
 
-        // ==========================================
         // 5. RESULTS ENTRY
-        // ==========================================
+        
         public async Task<IActionResult> Results(int eventId)
         {
             ViewBag.EventId = eventId;
