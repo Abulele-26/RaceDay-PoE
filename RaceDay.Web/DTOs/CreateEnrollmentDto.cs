@@ -1,4 +1,4 @@
-﻿namespace RaceDay.API.DTOs
+﻿namespace RaceDay.Web.DTOs
 {
     public class CreateEnrollmentDto
     {

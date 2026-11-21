@@ -1,0 +1,63 @@
+﻿@model IEnumerable<RaceDay.Web.DTOs.EventDto>
+
+@{
+    ViewData["Title"] = "Organiser Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Organiser Dashboard</h1>
+    <a asp-action="CreateEvent" class="btn btn-success">+ Create New Event</a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white text-center p-3">
+            <h3>@ViewBag.TotalEvents</h3>
+            <p class="mb-0">Total Events Created</p>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Your Events</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Event Name</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No events created yet. Click "Create New Event" to start.</td>
+                    </tr>
+                }
+                @foreach (var ev in Model)
+                {
+                    <tr>
+                        <td class="fw-bold">@ev.Name</td>
+                        <!-- CHANGED: Date to EventDate -->
+                        <td>@ev.EventDate.ToString("dd MMM yyyy")</td>
+                        <td>@ev.Location</td>
+                        <td>@ev.EventType</td>
+                        <td>
+                            <!-- CHANGED: Id to EventId -->
+                            <a asp-action="EditEvent" asp-route-id="@ev.EventId" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a asp-action="Categories" asp-route-eventId="@ev.EventId" class="btn btn-sm btn-outline-info">Categories</a>
+                            <a asp-action="Enrolments" asp-route-eventId="@ev.EventId" class="btn btn-sm btn-outline-secondary">Enrolments</a>
+                            <a asp-action="Results" asp-route-eventId="@ev.EventId" class="btn btn-sm btn-outline-warning">Results</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

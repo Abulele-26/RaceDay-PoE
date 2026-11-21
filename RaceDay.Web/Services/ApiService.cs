@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using RaceDay.API.DTOs;
-using RaceDay.Web.DTOs; // Added to find your copied DTOs
+using RaceDay.Web.DTOs;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -34,12 +33,35 @@ namespace RaceDay.Web.Services
         {
             AddAuthHeader();
             var response = await _httpClient.GetAsync("api/events");
-
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<List<EventDto>>() ?? new List<EventDto>();
             }
             return new List<EventDto>();
+        }
+
+        public async Task<EventDto?> GetEventByIdAsync(int id)
+        {
+            AddAuthHeader();
+            var response = await _httpClient.GetAsync($"api/events/{id}");
+            if (response.IsSuccessStatusCode) return await response.Content.ReadFromJsonAsync<EventDto>();
+            return null;
+        }
+
+        public async Task<List<CategoryDto>> GetCategoriesForEventAsync(int eventId)
+        {
+            AddAuthHeader();
+            var response = await _httpClient.GetAsync($"api/categories/event/{eventId}");
+            if (response.IsSuccessStatusCode) return await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? new();
+            return new();
+        }
+
+        public async Task<List<EnrollmentDto>> GetEnrolmentsForEventAsync(int eventId)
+        {
+            AddAuthHeader();
+            var response = await _httpClient.GetAsync($"api/enrollments/event/{eventId}");
+            if (response.IsSuccessStatusCode) return await response.Content.ReadFromJsonAsync<List<EnrollmentDto>>() ?? new();
+            return new();
         }
 
         // ==========================================
@@ -57,19 +79,17 @@ namespace RaceDay.Web.Services
         }
 
         // ==========================================
-        // POST REQUESTS (File Uploads)
+        // POST & PUT REQUESTS (Events & File Uploads)
         // ==========================================
 
         public async Task<bool> CreateEventAsync(CreateUpdateEventDto eventDto, IFormFile? bannerImage)
         {
             AddAuthHeader();
-
             using var formContent = new MultipartFormDataContent();
 
-            // Matching the properties from your CreateUpdateEventDto
             formContent.Add(new StringContent(eventDto.Name), "Name");
             formContent.Add(new StringContent(eventDto.Description ?? ""), "Description");
-            formContent.Add(new StringContent(eventDto.Date.ToString("yyyy-MM-ddTHH:mm:ss")), "Date");
+            formContent.Add(new StringContent(eventDto.EventDate.ToString("yyyy-MM-ddTHH:mm:ss")), "EventDate");
             formContent.Add(new StringContent(eventDto.Location ?? ""), "Location");
             formContent.Add(new StringContent(eventDto.Distance.ToString()), "Distance");
             formContent.Add(new StringContent(eventDto.EventType ?? ""), "EventType");
@@ -79,12 +99,57 @@ namespace RaceDay.Web.Services
                 using var fileStream = bannerImage.OpenReadStream();
                 var fileContent = new StreamContent(fileStream);
                 fileContent.Headers.ContentType = new MediaTypeHeaderValue(bannerImage.ContentType);
-
-                // Must match the parameter in your API Controller (e.g., [FromForm] IFormFile BannerImage)
                 formContent.Add(fileContent, "BannerImage", bannerImage.FileName);
             }
 
             var response = await _httpClient.PostAsync("api/events", formContent);
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> UpdateEventAsync(int id, CreateUpdateEventDto eventDto, IFormFile? bannerImage)
+        {
+            AddAuthHeader();
+            using var formContent = new MultipartFormDataContent();
+
+            formContent.Add(new StringContent(eventDto.Name), "Name");
+            formContent.Add(new StringContent(eventDto.Description ?? ""), "Description");
+            formContent.Add(new StringContent(eventDto.EventDate.ToString("yyyy-MM-ddTHH:mm:ss")), "EventDate");
+            formContent.Add(new StringContent(eventDto.Location ?? ""), "Location");
+            formContent.Add(new StringContent(eventDto.Distance.ToString()), "Distance");
+            formContent.Add(new StringContent(eventDto.EventType ?? ""), "EventType");
+
+            if (bannerImage != null && bannerImage.Length > 0)
+            {
+                using var fileStream = bannerImage.OpenReadStream();
+                var fileContent = new StreamContent(fileStream);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(bannerImage.ContentType);
+                formContent.Add(fileContent, "BannerImage", bannerImage.FileName);
+            }
+
+            var response = await _httpClient.PutAsync($"api/events/{id}", formContent);
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> DeleteEventAsync(int id)
+        {
+            AddAuthHeader();
+            var response = await _httpClient.DeleteAsync($"api/events/{id}");
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> CreateCategoryAsync(int eventId, CreateUpdateCategoryDto categoryDto)
+        {
+            AddAuthHeader();
+            // Removed the line: categoryDto.EventId = eventId; because your DTO doesn't have EventId.
+            // We pass the eventId in the URL instead.
+            var response = await _httpClient.PostAsJsonAsync($"api/categories/event/{eventId}", categoryDto);
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> CreateResultAsync(CreateResultDto resultDto)
+        {
+            AddAuthHeader();
+            var response = await _httpClient.PostAsJsonAsync("api/results", resultDto);
             return response.IsSuccessStatusCode;
         }
     }
