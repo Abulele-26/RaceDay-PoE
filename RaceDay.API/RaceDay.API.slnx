@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
   <Project Path="../RaceDay.Tests/RaceDay.Tests.csproj" Id="da25b500-eda4-44e1-a081-dcd6a4da62bb" />
   <Project Path="../RaceDay.Web/RaceDay.Web.csproj" Id="cc55b30b-bd7f-45d2-bd8b-6889ff94b2ff" />
   <Project Path="RaceDay.API.csproj" />
